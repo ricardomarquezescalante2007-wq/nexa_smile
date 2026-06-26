@@ -1,0 +1,203 @@
+import sqlite3
+
+DATABASE_NAME = "nexa_smile.db"
+
+def obtener_conexion():
+    return sqlite3.connect(DATABASE_NAME)
+
+# ==========================
+# CONSULTAS DE PACIENTES
+# ==========================
+
+def obtener_pacientes():
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT * FROM pacientes
+    """)
+
+    pacientes = cursor.fetchall()
+
+    conexion.close()
+    return pacientes
+
+
+def buscar_paciente(id_paciente):
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT * FROM pacientes
+        WHERE id_paciente = ?
+    """, (id_paciente,))
+
+    paciente = cursor.fetchone()
+
+    conexion.close()
+    return paciente
+
+
+# ==========================
+# CONSULTAS DE ODONTOLOGOS
+# ==========================
+
+def obtener_odontologos():
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT * FROM odontologos
+    """)
+
+    odontologos = cursor.fetchall()
+
+    conexion.close()
+    return odontologos
+
+
+def buscar_odontologo(id_odontologo):
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT * FROM odontologos
+        WHERE id_odontologo = ?
+    """, (id_odontologo,))
+
+    odontologo = cursor.fetchone()
+
+    conexion.close()
+    return odontologo
+
+
+# ==========================
+# CONSULTAS DE CITAS
+# ==========================
+
+def obtener_citas():
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT
+            citas.id_cita,
+            pacientes.nombre || ' ' || pacientes.apellido,
+            odontologos.nombre,
+            citas.fecha,
+            citas.hora,
+            citas.motivo,
+            citas.estado
+        FROM citas
+        INNER JOIN pacientes
+            ON citas.id_paciente = pacientes.id_paciente
+        INNER JOIN odontologos
+            ON citas.id_odontologo = odontologos.id_odontologo
+    """)
+
+    citas = cursor.fetchall()
+
+    conexion.close()
+    return citas
+
+
+def buscar_cita(id_cita):
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT * FROM citas
+        WHERE id_cita = ?
+    """, (id_cita,))
+
+    cita = cursor.fetchone()
+
+    conexion.close()
+    return cita
+
+
+# ==========================
+# CONSULTAS DE TRATAMIENTOS
+# ==========================
+
+def obtener_tratamientos():
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT
+            tratamientos.id_tratamiento,
+            pacientes.nombre || ' ' || pacientes.apellido,
+            tratamientos.nombre_tratamiento,
+            tratamientos.descripcion,
+            tratamientos.costo,
+            tratamientos.fecha_inicio,
+            tratamientos.fecha_fin
+        FROM tratamientos
+        INNER JOIN pacientes
+            ON tratamientos.id_paciente = pacientes.id_paciente
+    """)
+
+    tratamientos = cursor.fetchall()
+
+    conexion.close()
+    return tratamientos
+
+
+def buscar_tratamiento(id_tratamiento):
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT * FROM tratamientos
+        WHERE id_tratamiento = ?
+    """, (id_tratamiento,))
+
+    tratamiento = cursor.fetchone()
+
+    conexion.close()
+    return tratamiento
+
+
+# ==========================
+# CONSULTAS DE PAGOS
+# ==========================
+
+def obtener_pagos():
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT
+            pagos.id_pago,
+            pacientes.nombre || ' ' || pacientes.apellido,
+            tratamientos.nombre_tratamiento,
+            pagos.monto,
+            pagos.fecha_pago,
+            pagos.metodo_pago
+        FROM pagos
+        INNER JOIN pacientes
+            ON pagos.id_paciente = pacientes.id_paciente
+        INNER JOIN tratamientos
+            ON pagos.id_tratamiento = tratamientos.id_tratamiento
+    """)
+
+    pagos = cursor.fetchall()
+
+    conexion.close()
+    return pagos
+
+
+def buscar_pago(id_pago):
+    conexion = obtener_conexion()
+    cursor = conexion.cursor()
+
+    cursor.execute("""
+        SELECT * FROM pagos
+        WHERE id_pago = ?
+    """, (id_pago,))
+
+    pago = cursor.fetchone()
+
+    conexion.close()
+    return pago
