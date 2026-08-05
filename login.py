@@ -1,30 +1,51 @@
 from tkinter import *
 from tkinter import messagebox
-import menu
+from conexion import *
 
-def entrar():
-    # Validación simple: usuario 'admin' y contraseña '1234'
-    if usuario.get() == "admin" and contraseña.get() == "1234":
+def iniciar_sesion():
+
+    usuario = txt_usuario.get()
+    contraseña = txt_contraseña.get()
+
+    sql = """
+    SELECT * FROM usuarios
+    WHERE usuario=? AND contraseña=?
+    """
+
+    resultado = consultar(sql, (usuario, contraseña))
+
+    if resultado:
+        messagebox.showinfo("Acceso", "Bienvenido al sistema")
         ventana.destroy()
-        menu.abrir_menu()
+
+        # Aquí puedes abrir el menú principal
+        # import menu
     else:
         messagebox.showerror("Error", "Usuario o contraseña incorrectos")
 
+
 ventana = Tk()
-ventana.title("Login - Nexa Smile")
-ventana.geometry("300x250")
-ventana.config(bg="#d9f2ff")
+ventana.title("Login Nexa Smile")
+ventana.geometry("350x220")
+ventana.resizable(False, False)
 
-Label(ventana, text="BIENVENIDO", bg="#d9f2ff", font=("Arial", 14, "bold")).pack(pady=15)
+Label(ventana, text="Usuario", font=("Arial", 11)).pack(pady=10)
 
-Label(ventana, text="Usuario", bg="#d9f2ff").pack()
-usuario = Entry(ventana)
-usuario.pack(pady=5)
+txt_usuario = Entry(ventana, width=30)
+txt_usuario.pack()
 
-Label(ventana, text="Contraseña", bg="#d9f2ff").pack()
-contraseña = Entry(ventana, show="*")
-contraseña.pack(pady=5)
+Label(ventana, text="Contraseña", font=("Arial", 11)).pack(pady=10)
 
-Button(ventana, text="Entrar", command=entrar, bg="blue", fg="white", width=15).pack(pady=20)
+txt_contraseña = Entry(ventana, show="*", width=30)
+txt_contraseña.pack()
+
+Button(
+    ventana,
+    text="Iniciar Sesión",
+    bg="royalblue",
+    fg="white",
+    width=20,
+    command=iniciar_sesion
+).pack(pady=20)
 
 ventana.mainloop()
