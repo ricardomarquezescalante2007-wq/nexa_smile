@@ -15,15 +15,16 @@ def conectar():
 # ==========================
 
 def crear_bd():
-    cur.execute("""
-CREATE TABLE IF NOT EXISTS usuarios(
-    id_usuario INTEGER PRIMARY KEY AUTOINCREMENT,
-    usuario TEXT UNIQUE,
-    contraseña TEXT
-)
-""")
     con = conectar()
     cur = con.cursor()
+
+        cur.execute("""
+    CREATE TABLE IF NOT EXISTS usuarios(
+        id_usuario INTEGER PRIMARY KEY AUTOINCREMENT,
+        usuario TEXT UNIQUE,
+        contraseña TEXT
+    )
+    """)
 
     cur.execute("""
     CREATE TABLE IF NOT EXISTS pacientes(
