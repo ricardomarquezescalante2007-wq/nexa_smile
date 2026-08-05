@@ -1,62 +1,126 @@
-from tkinter import *
-from tkinter import ttk, messagebox
+from tkinter import messagebox
 from base_datos import *
 
-# Función para guardar datos
-def guardar():
-    if not nombre.get():
-        messagebox.showwarning("Error", "El nombre es obligatorio")
-        return
-    
-    ejecutar("""
-    INSERT INTO pacientes(nombre, apellido, fecha_nacimiento, sexo, telefono, correo, direccion, fecha_registro)
-    VALUES(?,?,?,?,?,?,?,?)
-    """, (nombre.get(), apellido.get(), fecha.get(), sexo.get(), telefono.get(), correo.get(), direccion.get(), "2026-06-26"))
-    limpiar()
-    mostrar()
-    messagebox.showinfo("Éxito", "Paciente registrado correctamente")
+# FUNCIÓN PARA LIMPIAR LOS CAMPOS
+def limpiar(nombre, apellido, fecha, sexo, telefono, correo, direccion):
+    try:
+        nombre.set("")
+        apellido.set("")
+        fecha.set("")
+        sexo.set("")
+        telefono.set("")
+        correo.set("")
+        direccion.set("")
 
-# Función para mostrar datos en la tabla
-def mostrar():
-    tabla.delete(*tabla.get_children())
-    for fila in consultar("SELECT * FROM pacientes"):
-        tabla.insert("", END, values=fila)
+    except Exception as error:
+        messagebox.showerror(
+            "Error",
+            f"No fue posible limpiar los campos.\n\n{error}"
+        )
 
-def limpiar():
-    for var in [nombre, apellido, fecha, sexo, telefono, correo, direccion]:
-        var.set("")
 
-# Configuración de ventana
-ventana = Tk()
-ventana.title("Gestión de Pacientes")
-ventana.geometry("1100x500")
+# FUNCIÓN PARA MOSTRAR LOS REGISTROS
+def mostrar(tabla):
+    try:
+        # Borra todos los registros del Treeview
+        tabla.delete(*tabla.get_children())
 
-# Variables
-nombre = StringVar(); apellido = StringVar(); fecha = StringVar(); sexo = StringVar()
-telefono = StringVar(); correo = StringVar(); direccion = StringVar()
+        # Consulta la base de datos
+        registros = consultar("SELECT * FROM pacientes")
 
-# Formulario (Lado izquierdo usando grid)
-frame_form = Frame(ventana)
-frame_form.grid(row=0, column=0, padx=20, pady=20, sticky="n")
+        # Agrega los registros al Treeview
+        for fila in registros:
+            tabla.insert("", "end", values=fila)
 
-campos = [("Nombre", nombre), ("Apellido", apellido), ("Fecha Nac.", fecha), 
-          ("Sexo", sexo), ("Teléfono", telefono), ("Correo", correo), ("Dirección", direccion)]
+    except Exception as error:
+        messagebox.showerror(
+            "Error",
+            f"No fue posible mostrar los registros.\n\n{error}"
+        )
 
-for i, (texto, var) in enumerate(campos):
-    Label(frame_form, text=texto).grid(row=i, column=0, sticky="e", padx=5, pady=5)
-    Entry(frame_form, textvariable=var).grid(row=i, column=1, padx=5, pady=5)
 
-Button(frame_form, text="Guardar Paciente", command=guardar, bg="green", fg="white").grid(row=8, column=0, columnspan=2, pady=20)
+# FUNCIÓN PARA GUARDAR UN PACIENTE
+def guardar(nombre, apellido, fecha, sexo, telefono, correo, direccion, tabla):
 
-# Tabla (Lado derecho)
-columnas = ("ID", "Nombre", "Apellido", "F. Nac", "Sexo", "Tel", "Correo", "Dir", "Registro")
-tabla = ttk.Treeview(ventana, columns=columnas, show="headings")
+    try:
 
-for col in columnas:
-    tabla.heading(col, text=col)
-    tabla.column(col, width=90)
+        # Validaciones
+        if not nombre.get().strip():
+            raise ValueError("El nombre es obligatorio.")
 
-tabla.grid(row=0, column=1, padx=20, pady=20, sticky="nsew")
+        if not apellido.get().strip():
+            raise ValueError("El apellido es obligatorio.")
 
-mostrar()
-ventana.mainloop()
+        if not fecha.get().strip():
+            raise ValueError("La fecha de nacimiento es obligatoria.")
+
+        if not sexo.get().strip():
+            raise ValueError("El sexo es obligatorio.")
+
+        if not telefono.get().strip():
+            raise ValueError("El teléfono es obligatorio.")
+
+        if not correo.get().strip():
+            raise ValueError("El correo es obligatorio.")
+
+        if not direccion.get().strip():
+            raise ValueError("La dirección es obligatoria.")
+
+        # Guarda el paciente en la base de datos
+        ejecutar(
+            """
+            INSERT INTO pacientes(
+                nombre,
+                apellido,
+                fecha_nacimiento,
+                sexo,
+                telefono,
+                correo,
+                direccion,
+                fecha_registro
+            )
+            VALUES(?,?,?,?,?,?,?,?)
+            """,
+            (
+                nombre.get(),
+                apellido.get(),
+                fecha.get(),
+                sexo.get(),
+                telefono.get(),
+                correo.get(),
+                direccion.get(),
+                "2026-06-26"
+            )
+        )
+
+        # Limpia el formulario
+        limpiar(
+            nombre,
+            apellido,
+            fecha,
+            sexo,
+            telefono,
+            correo,
+            direccion
+        )
+
+        # Actualiza la tabla
+        mostrar(tabla)
+
+        # Mensaje de éxito
+        messagebox.showinfo(
+            "Éxito",
+            "Paciente registrado correctamente."
+        )
+
+    except ValueError as error:
+        messagebox.showwarning(
+            "Datos incompletos",
+            str(error)
+        )
+
+    except Exception as error:
+        messagebox.showerror(
+            "Error",
+            f"Ocurrió un error al guardar.\n\n{error}"
+        )
