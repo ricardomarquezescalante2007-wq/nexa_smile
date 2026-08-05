@@ -1,11 +1,34 @@
 import sqlite3
 
-def conectar():
-    return sqlite3.connect("nexa_smile.db")
+DATABASE = "nexa_smile.db"
 
-def crear_tablas():
-    con = conectar()
-    cur = con.cursor()
-    # Aquí puedes añadir la creación de tablas si no lo gestionas ya desde base_datos.py
-    con.commit()
-    con.close()
+def obtener_conexion():
+    try:
+        conexion = sqlite3.connect(DATABASE)
+        return conexion
+    except sqlite3.Error as e:
+        print("Error al conectar con la base de datos:", e)
+        return None
+
+
+def ejecutar(sql, datos=()):
+    conexion = obtener_conexion()
+
+    if conexion:
+        cursor = conexion.cursor()
+        cursor.execute(sql, datos)
+        conexion.commit()
+        conexion.close()
+
+
+def consultar(sql, datos=()):
+    conexion = obtener_conexion()
+
+    if conexion:
+        cursor = conexion.cursor()
+        cursor.execute(sql, datos)
+        registros = cursor.fetchall()
+        conexion.close()
+        return registros
+
+    return []
