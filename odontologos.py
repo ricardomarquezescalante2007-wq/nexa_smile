@@ -1,60 +1,116 @@
-from tkinter import *
-from tkinter import ttk, messagebox
+from tkinter import messagebox
 from base_datos import *
 
-def guardar():
-    if not nombre.get():
-        messagebox.showwarning("Error", "El nombre es obligatorio")
-        return
-    
-    ejecutar("""
-    INSERT INTO odontologos(nombre, especialidad, telefono, correo, cedula_profesional)
-    VALUES(?,?,?,?,?)
-    """, (nombre.get(), especialidad.get(), telefono.get(), correo.get(), cedula.get()))
-    limpiar()
-    mostrar()
-    messagebox.showinfo("Éxito", "Odontólogo registrado")
+# FUNCIÓN PARA LIMPIAR LOS CAMPOS DEL FORMULARIO
+def limpiar(nombre, especialidad, telefono, correo, cedula):
+    try:
+        # Limpia el contenido de cada campo
+        nombre.set("")
+        especialidad.set("")
+        telefono.set("")
+        correo.set("")
+        cedula.set("")
 
-def mostrar():
-    tabla.delete(*tabla.get_children())
-    for fila in consultar("SELECT * FROM odontologos"):
-        tabla.insert("", END, values=fila)
+    except Exception as error:
+        messagebox.showerror(
+            "Error",
+            f"No fue posible limpiar los campos.\n\n{error}"
+        )
 
-def limpiar():
-    for var in [nombre, especialidad, telefono, correo, cedula]:
-        var.set("")
+# FUNCIÓN PARA MOSTRAR LOS ODONTÓLOGOS
+def mostrar(tabla):
+    try:
+        # Elimina los registros actuales del Treeview
+        tabla.delete(*tabla.get_children())
 
-# Configuración de ventana
-ventana = Tk()
-ventana.title("Gestión de Odontólogos")
-ventana.geometry("1100x500")
+        # Consulta todos los odontólogos
+        registros = consultar("SELECT * FROM odontologos")
 
-# Variables
-nombre = StringVar(); especialidad = StringVar(); telefono = StringVar()
-correo = StringVar(); cedula = StringVar()
+        # Agrega los registros a la tabla
+        for fila in registros:
+            tabla.insert("", "end", values=fila)
 
-# Formulario
-frame_form = Frame(ventana)
-frame_form.grid(row=0, column=0, padx=20, pady=20, sticky="n")
+    except Exception as error:
+        messagebox.showerror(
+            "Error",
+            f"No fue posible mostrar los registros.\n\n{error}"
+        )
 
-campos = [("Nombre", nombre), ("Especialidad", especialidad), ("Teléfono", telefono), 
-          ("Correo", correo), ("Cédula Prof.", cedula)]
 
-for i, (texto, var) in enumerate(campos):
-    Label(frame_form, text=texto).grid(row=i, column=0, sticky="e", padx=5, pady=5)
-    Entry(frame_form, textvariable=var).grid(row=i, column=1, padx=5, pady=5)
+# FUNCIÓN PARA GUARDAR UN ODONTÓLOGO
+def guardar(nombre, especialidad, telefono, correo, cedula, tabla):
 
-Button(frame_form, text="Guardar Odontólogo", command=guardar, bg="green", fg="white").grid(row=6, column=0, columnspan=2, pady=20)
+    try:
+        # VALIDACIONES
 
-# Tabla
-columnas = ("ID", "Nombre", "Especialidad", "Tel", "Correo", "Cédula")
-tabla = ttk.Treeview(ventana, columns=columnas, show="headings")
+        if not nombre.get().strip():
+            raise ValueError("El nombre es obligatorio.")
 
-for col in columnas:
-    tabla.heading(col, text=col)
-    tabla.column(col, width=100)
+        if not especialidad.get().strip():
+            raise ValueError("La especialidad es obligatoria.")
 
-tabla.grid(row=0, column=1, padx=20, pady=20, sticky="nsew")
+        if not telefono.get().strip():
+            raise ValueError("El teléfono es obligatorio.")
 
-mostrar()
-ventana.mainloop()
+        if not correo.get().strip():
+            raise ValueError("El correo es obligatorio.")
+
+        if not cedula.get().strip():
+            raise ValueError("La cédula profesional es obligatoria.")
+
+        # INSERTA EL REGISTRO
+
+        ejecutar(
+            """
+            INSERT INTO odontologos
+            (
+                nombre,
+                especialidad,
+                telefono,
+                correo,
+                cedula_profesional
+            )
+            VALUES(?,?,?,?,?)
+            """,
+            (
+                nombre.get(),
+                especialidad.get(),
+                telefono.get(),
+                correo.get(),
+                cedula.get()
+            )
+        )
+
+        # Limpia los campos
+        limpiar(
+            nombre,
+            especialidad,
+            telefono,
+            correo,
+            cedula
+        )
+
+        # Actualiza la tabla
+        mostrar(tabla)
+
+        # Mensaje de éxito
+        messagebox.showinfo(
+            "Éxito",
+            "Odontólogo registrado correctamente."
+        )
+
+    # Captura errores de validación
+    except ValueError as error:
+
+        messagebox.showwarning(
+            "Datos incompletos",
+            str(error)
+        )
+
+    # Captura cualquier otro error
+    except Exception as error:
+
+        messagebox.showerror(
+            "Error",
+            f"Ocurrió un error al guardar.\n\n{error}"
+        )
