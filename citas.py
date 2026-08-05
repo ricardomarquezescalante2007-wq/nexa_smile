@@ -2,45 +2,52 @@ from tkinter import *
 from tkinter import ttk, messagebox
 from base_datos import *
 
-# Funciones de lógica
 def cargar_combos():
-    pacientes["values"] = [f"{i[0]} - {i[1]}" for i in consultar("SELECT id_paciente, nombre FROM pacientes")]
-    odontologos["values"] = [f"{i[0]} - {i[1]}" for i in consultar("SELECT id_odontologo, nombre FROM odontologos")]
+    try:
+        pacientes["values"] = [f"{i[0]} - {i[1]}" for i in consultar("SELECT id_paciente, nombre FROM pacientes")]
+        odontologos["values"] = [f"{i[0]} - {i[1]}" for i in consultar("SELECT id_odontologo, nombre FROM odontologos")]
+    except Exception as e:
+        messagebox.showerror("Error de Carga", f"No se pudieron cargar las listas de pacientes u odontólogos:\n{e}")
 
 def guardar():
     if not fecha.get() or not pacientes.get():
-        messagebox.showwarning("Error", "Completa los campos obligatorios")
+        messagebox.showwarning("Error", "Completa los campos obligatorios (Fecha y Paciente)")
         return
     
-    id_pac = pacientes.get().split(" - ")[0]
-    id_odonto = odontologos.get().split(" - ")[0]
-    
-    ejecutar("""
-    INSERT INTO citas(id_paciente, id_odontologo, fecha, hora, motivo, estado)
-    VALUES(?,?,?,?,?,?)
-    """, (id_pac, id_odonto, fecha.get(), hora.get(), motivo.get(), estado.get()))
-    
-    limpiar()
-    mostrar()
-    messagebox.showinfo("Éxito", "Cita registrada")
+    try:
+        id_pac = pacientes.get().split(" - ")[0]
+        id_odonto = odontologos.get().split(" - ")[0] if odontologos.get() else None
+        
+        ejecutar("""
+        INSERT INTO citas(id_paciente, id_odontologo, fecha, hora, motivo, estado)
+        VALUES(?,?,?,?,?,?)
+        """, (id_pac, id_odonto, fecha.get(), hora.get(), motivo.get(), estado.get()))
+        
+        limpiar()
+        mostrar()
+        messagebox.showinfo("Éxito", "Cita registrada")
+    except IndexError:
+        messagebox.showwarning("Advertencia", "Selecciona un formato válido de paciente u odontólogo de la lista.")
+    except Exception as e:
+        messagebox.showerror("Error al Guardar", f"Ocurrió un error al guardar la cita:\n{e}")
 
 def mostrar():
-    tabla.delete(*tabla.get_children())
-    for fila in consultar("SELECT * FROM citas"):
-        tabla.insert("", END, values=fila)
+    try:
+        tabla.delete(*tabla.get_children())
+        for fila in consultar("SELECT * FROM citas"):
+            tabla.insert("", END, values=fila)
+    except Exception as e:
+        messagebox.showerror("Error de Consulta", f"No se pudieron obtener los datos de las citas:\n{e}")
 
 def limpiar():
     fecha.set(""); hora.set(""); motivo.set(""); estado.set("")
 
-# Configuración de ventana
 ventana = Tk()
 ventana.title("Gestión de Citas")
 ventana.geometry("900x500")
 
-# Variables
 fecha = StringVar(); hora = StringVar(); motivo = StringVar(); estado = StringVar()
 
-# Formulario
 frame_form = Frame(ventana)
 frame_form.grid(row=0, column=0, padx=20, pady=20, sticky="n")
 
@@ -63,7 +70,7 @@ estado.grid(row=5, column=1, pady=5)
 
 Button(frame_form, text="Guardar Cita", command=guardar, bg="green", fg="white").grid(row=6, column=0, columnspan=2, pady=20)
 
-# Tabla
+
 columnas = ("ID", "ID Pac", "ID Odon", "Fecha", "Hora", "Motivo", "Estado")
 tabla = ttk.Treeview(ventana, columns=columnas, show="headings")
 for col in columnas:
