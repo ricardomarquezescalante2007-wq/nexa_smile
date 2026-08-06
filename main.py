@@ -1,64 +1,36 @@
-import sys
-import base_datos
+import importlib
 from tkinter import *
 from tkinter import messagebox
+from base_datos import crear_bd
 
-# Intentar importar e inicializar la base de datos
 try:
-    from base_datos import crear_bd
     crear_bd()
-except ImportError as e:
-    messagebox.showerror("Error de Importación", f"No se encontró el módulo 'base_datos.py':\n{e}")
 except Exception as e:
-    messagebox.showerror("Error de Base de Datos", f"Ocurrió un error al inicializar la base de datos:\n{e}")
+    messagebox.showerror(
+        "Error",
+        f"No fue posible crear la base de datos.\n\n{e}"
+    )
+
+def abrir_modulo(nombre):
+    try:
+        importlib.import_module(nombre)
+    except Exception as e:
+        messagebox.showerror(
+            "Error",
+            f"No fue posible abrir el módulo.\n\n{e}"
+        )
 
 def abrir_pacientes():
-    abrir_pacientes"pacientes")
+    abrir_modulo("pacientes")
 
 def abrir_odontologos():
-    abrir_odontologos("odontologos")
+    abrir_modulo("odontologos")
 
+def abrir_citas():
+    abrir_modulo("citas")
 
-try:
-    root = Tk()
-    root.title("Sistema Consultorio Dental")
-    root.geometry("400x400")
-    root.config(bg="#d9f2ff")
+def abrir_tratamientos():
+    abrir_modulo("tratamientos")
 
-    Label(
-        root,
-        text="CONSULTORIO DENTAL",
-        font=("Arial", 16, "bold"),
-        bg="#d9f2ff"
-    ).pack(pady=20)
-
-   
-    Button(
-        root,
-        text="Gestión de Pacientes",
-        width=25,
-        command=abrir_pacientes,
-        bg="white"
-    ).pack(pady=10)
-
-    Button(
-        root,
-        text="Gestión de Odontólogos",
-        width=25,
-        command=abrir_odontologos,
-        bg="white"
-    ).pack(pady=10)
-
-    Button(
-        root,
-        text="Salir",
-        width=25,
-        command=salir,
-        bg="red",
-        fg="white"
-    ).pack(pady=10)
-
-    root.mainloop()
-
-except Exception as e:
-    print(f"Error crítico en la interfaz gráfica: {e}")
+def abrir_pagos():
+    abrir_modulo("pagos")
