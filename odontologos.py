@@ -1,4 +1,5 @@
-from tkinter import messagebox
+import tkinter as tk
+from tkinter import ttk, messagebox
 from base_datos import *
 
 # FUNCIÓN PARA LIMPIAR LOS CAMPOS DEL FORMULARIO
@@ -65,7 +66,7 @@ def guardar(nombre, especialidad, telefono, correo, cedula, tabla):
             INSERT INTO odontologos
             (
                 nombre,
-                especialidad,
+                specialidad,
                 telefono,
                 correo,
                 cedula_profesional
@@ -114,3 +115,57 @@ def guardar(nombre, especialidad, telefono, correo, cedula, tabla):
             "Error",
             f"Ocurrió un error al guardar.\n\n{error}"
         )
+
+# INTERFAZ GRÁFICA
+root = tk.Tk()
+root.title("Gestión de Odontólogos")
+root.geometry("700x500")
+
+nombre_var = tk.StringVar()
+especialidad_var = tk.StringVar()
+telefono_var = tk.StringVar()
+correo_var = tk.StringVar()
+cedula_var = tk.StringVar()
+
+frame_form = tk.LabelFrame(root, text="Datos del Odontólogo")
+frame_form.pack(fill="x", padx=10, pady=10)
+
+tk.Label(frame_form, text="Nombre:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
+tk.Entry(frame_form, textvariable=nombre_var, width=30).grid(row=0, column=1, padx=5, pady=5)
+
+tk.Label(frame_form, text="Especialidad:").grid(row=1, column=0, sticky="w", padx=5, pady=5)
+tk.Entry(frame_form, textvariable=especialidad_var, width=30).grid(row=1, column=1, padx=5, pady=5)
+
+tk.Label(frame_form, text="Teléfono:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
+tk.Entry(frame_form, textvariable=telefono_var, width=30).grid(row=2, column=1, padx=5, pady=5)
+
+tk.Label(frame_form, text="Correo:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
+tk.Entry(frame_form, textvariable=correo_var, width=30).grid(row=3, column=1, padx=5, pady=5)
+
+tk.Label(frame_form, text="Cédula Profesional:").grid(row=4, column=0, sticky="w", padx=5, pady=5)
+tk.Entry(frame_form, textvariable=cedula_var, width=30).grid(row=4, column=1, padx=5, pady=5)
+
+frame_botones = tk.Frame(root)
+frame_botones.pack(fill="x", padx=10, pady=5)
+
+btn_guardar = tk.Button(frame_botones, text="Guardar", command=lambda: guardar(nombre_var, especialidad_var, telefono_var, correo_var, cedula_var, tabla))
+btn_guardar.pack(side="left", padx=5)
+
+btn_limpiar = tk.Button(frame_botones, text="Limpiar", command=lambda: limpiar(nombre_var, especialidad_var, telefono_var, correo_var, cedula_var))
+btn_limpiar.pack(side="left", padx=5)
+
+frame_tabla = tk.Frame(root)
+frame_tabla.pack(fill="both", expand=True, padx=10, pady=10)
+
+columnas = ("ID", "Nombre", "Especialidad", "Teléfono", "Correo", "Cédula")
+tabla = ttk.Treeview(frame_tabla, columns=columnas, show="headings")
+
+for col in columnas:
+    tabla.heading(col, text=col)
+    tabla.column(col, width=100)
+
+tabla.pack(fill="both", expand=True)
+
+mostrar(tabla)
+
+root.mainloop()
