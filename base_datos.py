@@ -18,7 +18,7 @@ def crear_bd():
     con = conectar()
     cur = con.cursor()
 
-        cur.execute("""
+    cur.execute("""
     CREATE TABLE IF NOT EXISTS usuarios(
         id_usuario INTEGER PRIMARY KEY AUTOINCREMENT,
         usuario TEXT UNIQUE,
