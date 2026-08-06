@@ -15,7 +15,7 @@ def abrir_modulo(nombre_modulo):
     except ModuleNotFoundError:
         messagebox.showerror(
             "Error de Archivo", 
-            f"No se encontró el archivo '{nombre_modulo}.py' en la carpeta del proyecto."
+            f"No se encontró el archivo '{nombre_modulo}.py' en la carpeta del proyecto." 
         )
     except Exception as e:
         messagebox.showerror(
