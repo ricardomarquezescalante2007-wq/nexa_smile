@@ -13,35 +13,10 @@ except Exception as e:
     messagebox.showerror("Error de Base de Datos", f"Ocurrió un error al inicializar la base de datos:\n{e}")
 
 def abrir_pacientes():
-    try:
-        # Si el módulo ya fue importado antes, se fuerza su recarga para volver a ejecutar la interfaz
-        if "pacientes" in sys.modules:
-            import importlib
-            importlib.reload(sys.modules["pacientes"])
-        else:
-            import pacientes
-    except ImportError as e:
-        messagebox.showerror("Error", f"No se pudo encontrar el archivo 'pacientes.py':\n{e}")
-    except Exception as e:
-        messagebox.showerror("Error inesperado", f"Ocurrió un problema al abrir Pacientes:\n{e}")
+    abrir_pacientes"pacientes")
 
 def abrir_odontologos():
-    try:
-        if "odontologos" in sys.modules:
-            import importlib
-            importlib.reload(sys.modules["odontologos"])
-        else:
-            import odontologos
-    except ImportError as e:
-        messagebox.showerror("Error", f"No se pudo encontrar el archivo 'odontologos.py':\n{e}")
-    except Exception as e:
-        messagebox.showerror("Error inesperado", f"Ocurrió un problema al abrir Odontólogos:\n{e}")
-
-def salir():
-    try:
-        root.destroy()
-    except Exception as e:
-        messagebox.showwarning("Advertencia", f"Error al cerrar la aplicación:\n{e}")
+    abrir_odontologos("odontologos")
 
 
 try:
